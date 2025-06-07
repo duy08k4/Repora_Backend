@@ -59,9 +59,15 @@ const staffAuthorize = (req, res, next) => {
                             });
                         }
 
+                        req.dataChecked = {
+                            staffGmail_checked: refreshToken_decoded.gmail,
+                            staffID_checked: refreshToken_decoded.userID,
+                            staffRole_checked: refreshToken_decoded.role,
+                        }
+
                         return next();
                     } else {
-                        return res.status(498).json({
+                        return res.json({
                             status: 498,
                             data: {
                                 mess: "The login session has expired",
@@ -70,11 +76,17 @@ const staffAuthorize = (req, res, next) => {
                     }
                 });
             } else {
+                req.dataChecked = {
+                    staffGmail_checked: accessToken_decoded.gmail,
+                    staffID_checked: accessToken_decoded.userID,
+                    staffRole_checked: accessToken_decoded.role,
+                }
+                
                 return next();
             }
         });
     } else {
-        return res.status(401).json({
+        return res.json({
             status: 401,
             data: {
                 mess: "Please login your account",

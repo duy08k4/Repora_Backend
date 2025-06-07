@@ -68,7 +68,7 @@ const Admin_uploadImage_Model = async (req, res) => {
         const avatarCode = generateAvartarCode()
         await addStaff(req, res, avatarCode)
 
-        const result = await cloudinary.uploader.upload_stream({ folder: 'Staff', public_id: avatarCode }, (error, result) => {
+        const result = await cloudinary.uploader.upload_stream({ folder: 'staff', public_id: avatarCode }, (error, result) => {
             if (error) {
                 console.error(error);
                 return res.json({

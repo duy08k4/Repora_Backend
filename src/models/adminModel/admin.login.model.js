@@ -89,7 +89,10 @@ const Admin_login_Model = async (req, res) => {
                 return res.json({
                     status: 200,
                     data: {
-                        mess: "Welcome back my admin"
+                        mess: "Welcome back my admin",
+                        data: {
+                            gmail: getAdminGmail
+                        }
                     }
                 })
             } else {
@@ -114,7 +117,10 @@ const Admin_login_Model = async (req, res) => {
                 return {
                     status: 200,
                     data: {
-                        mess: "Welcome my admin"
+                        mess: "Welcome my admin",
+                        data: {
+                            gmail: adminGmail
+                        }
                     }
                 }
             }).catch((error) => {

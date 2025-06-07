@@ -12,6 +12,7 @@ const staffAccount = {
     gmail: "",
     password: "",
     name: "",
+    role: "staff",
     id: ""
 }
 
@@ -37,6 +38,7 @@ const userAccount = {
     gmail: "",
     password: "",
     nane: "",
+    sole: "user",
     id: ""
 }
 

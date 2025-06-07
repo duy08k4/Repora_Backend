@@ -1,5 +1,6 @@
 // Import libraries
 const { v4 } = require("uuid")
+const jwt = require("jsonwebtoken");
 
 // Import database
 const db = require("../../config/firebaseSDK")
@@ -61,16 +62,18 @@ const user_createAccount_Model = async (req, res) => {
         gmail: gmail,
         password: hs256(password),
         uuid,
+        role: "user",
         createdTime: createdTimeAccount,
     })
     const ref_userInformation = db.collection("userInformation").doc(btoa(gmail))
     batch.set(ref_userInformation, {
-        gmail: "",
-        username: "",
+        gmail: gmail,
+        username: username,
         uuid,
         avatarCode: generateAvartarCode(),
         role: "user",
         reportList: [],
+        createdTime: createdTimeAccount,
     })
 
     const result = await batch.commit().then(() => {

@@ -66,7 +66,7 @@ const adminAuthorize = (req, res, next) => {
                         }
                         return next();
                     } else {
-                        return res.status(498).json({
+                        return res.json({
                             status: 498,
                             data: {
                                 mess: "The login session has expired",
@@ -84,7 +84,7 @@ const adminAuthorize = (req, res, next) => {
             }
         });
     } else {
-        return res.status(401).json({
+        return res.json({
             status: 401,
             data: {
                 mess: "Please login your account",

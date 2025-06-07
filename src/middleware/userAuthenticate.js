@@ -58,10 +58,15 @@ const userAuthorize = (req, res, next) => {
                                 maxAge: ms(process.env.LIFE_TIME_REF_TOKEN),
                             });
                         }
+                        req.dataChecked = {
+                            userGmail_checked: refreshToken_decoded.gmail,
+                            userID_checked: refreshToken_decoded.userID,
+                            userRole_checked: refreshToken_decoded.role,
+                        }
 
                         return next();
                     } else {
-                        return res.status(498).json({
+                        return res.json({
                             status: 498,
                             data: {
                                 mess: "The login session has expired",
@@ -70,11 +75,16 @@ const userAuthorize = (req, res, next) => {
                     }
                 });
             } else {
+                req.dataChecked = {
+                    userGmail_checked: accessToken_decoded.gmail,
+                    userID_checked: accessToken_decoded.userID,
+                    userRole_checked: accessToken_decoded.role,
+                }
                 return next();
             }
         });
     } else {
-        return res.status(401).json({
+        return res.json({
             status: 401,
             data: {
                 mess: "Please login your account",
