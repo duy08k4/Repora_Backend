@@ -29,6 +29,7 @@ const Admin_removeStaff_Model = async (req, res) => {
                 listGmail.forEach(gmail => {
                     batch.delete(db.collection("staffAccount").doc(sha256(gmail)))
                     batch.delete(db.collection("staffInformation").doc(sha256(gmail)))
+                    batch.delete(db.collection("staffStatus").doc(sha256(gmail)))
                 });
 
                 const result = await batch.commit().then(() => {
@@ -52,10 +53,10 @@ const Admin_removeStaff_Model = async (req, res) => {
                     try {
                         const results = await Promise.all(
                             listAvatarCode.map(publicId =>
-                                cloudinary.uploader.destroy(publicId)
+                                cloudinary.uploader.destroy(`staff/${publicId}`)
                             )
                         );
-                        
+
                         return res.json({
                             status: 200,
                             data: {
@@ -108,13 +109,6 @@ const Admin_removeStaff_Model = async (req, res) => {
             }
         })
     }
-
-    return res.json({
-        status: 404,
-        data: {
-            mess: "Can't remove selected staff"
-        }
-    })
 }
 
 module.exports = {

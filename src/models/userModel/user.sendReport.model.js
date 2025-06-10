@@ -25,58 +25,40 @@ function createdTime() {
 
 // -------------------------------------------------------------------------------------------------------------
 // Create staff account
-const addReport = async (req, res, imgReportInput) => {
+const addReport = async (req, imgReportInput) => {
     const data = req.body
-    if (data) {
-        const name = data.name
-        const type = data.type
-        const level = data.level
-        const reporter_gmail = data.reporter_gmail
-        const reporter_name = data.reporter_name
-        const position = data.position
-        const reportID = v4()
-        const time = createdTime()
+    if (!data) throw new Error("Invalid data");
 
-        const batch = db.batch()
+    const name = data.name
+    const type = data.type
+    const level = data.level
+    const reporter_gmail = data.reporter_gmail
+    const reporter_name = data.reporter_name
+    const position = data.position
+    const reportID = v4()
+    const time = createdTime()
 
-        batch.set(db.collection("report").doc(btoa(reportID)), {
-            name: name,
-            reportID: reportID,
-            type: type,
-            level: level,
-            reporter: {
-                name: reporter_name,
-                gmail: reporter_gmail
-            },
-            time: time,
-            position: JSON.parse(position),
-            imgCode: imgReportInput,
-            staff: [],
-            state: "proccessing"
-        })
+    const batch = db.batch()
 
-        try {
-            await batch.commit();
-            return true;
-        } catch (err) {
-            console.log(`=====> ERROR: ${err}`)
-            res.json({
-                status: 404,
-                data: {
-                    mess: "Can't send your report"
-                }
-            });
-            return false;
-        }
-    } else {
-        res.json({
-            status: 404,
-            data: {
-                mess: "Can't send your report"
-            }
-        });
-        return false;
-    }
+    batch.set(db.collection("report").doc(btoa(reportID)), {
+        name: name,
+        reportID: reportID,
+        type: type,
+        level: level,
+        reporter: {
+            name: reporter_name,
+            gmail: reporter_gmail
+        },
+        time: time,
+        position: JSON.parse(position),
+        imgCode: imgReportInput,
+        staff: [],
+        activeStaff: [],
+        state: "proccessing"
+    })
+
+    await batch.commit();
+    return true;
 }
 
 // Upload image model
@@ -92,36 +74,41 @@ const User_uploadImage_Model = async (req, res) => {
         }
 
         const imgReport = generateAvartarCode();
-        const addReportResult = await addReport(req, res, imgReport);
 
-        if (!addReportResult) {
-            return; 
+        try {
+            await addReport(req, imgReport);
+        } catch (err) {
+            console.error(err);
+            return res.json({
+                status: 404,
+                data: {
+                    mess: "Can't send your report"
+                }
+            });
         }
 
-        // Upload ảnh lên Cloudinary, dùng buffer (file lưu trong memoryStorage)
-        const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: 'report', public_id: imgReport },
-            (error, result) => {
-                if (error) {
-                    console.error(error);
-                    return res.json({
-                        status: 404,
-                        data: {
-                            mess: "Can't send your report"
-                        }
-                    })
-                }
-
-                return res.json({
-                    status: 200,
-                    data: {
-                        mess: "Thanks for your contribution"
+        // Upload ảnh lên Cloudinary
+        const streamUpload = () => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: 'report', public_id: imgReport },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
                     }
-                })
-            }
-        );
+                );
+                stream.end(req.file.buffer);
+            });
+        };
 
-        uploadStream.end(req.file.buffer);
+        await streamUpload();
+
+        return res.json({
+            status: 200,
+            data: {
+                mess: "Thanks for your contribution"
+            }
+        });
 
     } catch (error) {
         console.error(error);
@@ -130,7 +117,7 @@ const User_uploadImage_Model = async (req, res) => {
             data: {
                 mess: "Can't send your report"
             }
-        })
+        });
     }
 }
 

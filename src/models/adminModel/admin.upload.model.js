@@ -14,41 +14,23 @@ function generateAvartarCode() {
 
 // -------------------------------------------------------------------------------------------------------------
 // Create staff account
-const addStaff = async (req, res, avatarCodeInput) => {
+const addStaff = async (req, avatarCodeInput) => {
     const data = req.body
-    if (data) {
-        const name = data.name
-        const gmail = data.gmail
-        // Check staff's existence
-        const newStaffRef = await db.collection("newStaff").doc(sha256(gmail)).get()
+    if (!data) throw new Error("Invalid data")
 
-        if (!newStaffRef.exists) {
-            db.collection("newStaff").doc(sha256(gmail)).set({
-                name: name,
-                gmail: gmail,
-                avatarCode: avatarCodeInput
-            }).then(() => { })
-                .catch((error) => {
-                    console.log(`=====> ERROR: ${error}`)
-                    return res.json({
-                        status: 404,
-                        data: {
-                            mess: "Can't add staff"
-                        }
-                    })
-                })
-        } else return res.json({
-            status: 404,
-            data: {
-                mess: "Can't add staff"
-            }
-        })
+    const name = data.name
+    const gmail = data.gmail
+    const newStaffRef = await db.collection("newStaff").doc(sha256(gmail)).get()
+    const recentStaff = await db.collection("accounts").doc(btoa(gmail)).get()
 
-    } else return res.json({
-        status: 404,
-        data: {
-            mess: "Can't add staff"
-        }
+    if (newStaffRef.exists || recentStaff.exists) {
+        throw new Error("Staff already exists")
+    }
+
+    await db.collection("newStaff").doc(sha256(gmail)).set({
+        name: name,
+        gmail: gmail,
+        avatarCode: avatarCodeInput
     })
 }
 
@@ -64,35 +46,37 @@ const Admin_uploadImage_Model = async (req, res) => {
             })
         }
 
-        // Upload ảnh lên Cloudinary, dùng buffer (file lưu trong memoryStorage)
         const avatarCode = generateAvartarCode()
-        await addStaff(req, res, avatarCode)
 
-        const result = await cloudinary.uploader.upload_stream({ folder: 'staff', public_id: avatarCode }, (error, result) => {
-            if (error) {
-                console.error(error);
-                return res.json({
-                    status: 404,
-                    data: {
-                        mess: "Can't add staff"
+        // Gọi addStaff, nếu lỗi sẽ throw và nhảy vào catch
+        await addStaff(req, avatarCode)
+
+        // Upload lên Cloudinary
+        const streamUpload = () => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: 'staff', public_id: avatarCode },
+                    (error, result) => {
+                        if (error) reject(error)
+                        else resolve(result)
                     }
-                })
-            }
-            // Trả kết quả về client
-            return res.json({
-                status: 200,
-                data: {
-                    mess: "Add"
-                }
+                )
+                stream.end(req.file.buffer)
             })
         }
-        );
 
-        // Đẩy buffer file vào upload_stream
-        result.end(req.file.buffer);
+        await streamUpload()
+
+        // Chỉ gửi 1 lần response ở đây
+        return res.json({
+            status: 200,
+            data: {
+                mess: "Add"
+            }
+        })
 
     } catch (error) {
-        console.error(error);
+        console.error(error)
         return res.json({
             status: 404,
             data: {

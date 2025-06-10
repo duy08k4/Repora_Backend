@@ -247,13 +247,6 @@ const loginAccount_Model = async (req, res) => {
             }
         }
 
-        return res.json({
-            status: 404,
-            data: {
-                mess: "Can't login"
-            }
-        })
-
     } else {
         return res.json({
             status: 404,
