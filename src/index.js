@@ -21,6 +21,7 @@ app.use(morgan("combined"))
 
 const allowedOrigins = [
   process.env.FRONTEND_GATE,
+  process.env.FRONTEND_GATE_Production,
   'https://localhost',           
   'capacitor://localhost',       
   'http://localhost:5173',       
