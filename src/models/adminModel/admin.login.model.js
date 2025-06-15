@@ -104,7 +104,7 @@ const Admin_login_Model = async (req, res) => {
                 })
             }
         } else {
-            const haveAdmin = ((await db.collection("adminAccount").count().get()).data().count()) === 0 ? false : true
+            const haveAdmin = ((await db.collection("adminAccount").count().get()).data().count) === 0 ? false : true
 
             if (haveAdmin) {
                 return res.json({
