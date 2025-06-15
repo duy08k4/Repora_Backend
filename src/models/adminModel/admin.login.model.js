@@ -41,9 +41,9 @@ const Admin_login_Model = async (req, res) => {
         const adminPassword = data.password
         const adminRef = await db.collection("adminAccount").doc(sha256(adminGmail)).get()
 
-        if (!adminGmail && !adminPassword) {
+        if (!adminGmail || !adminPassword) {
             return res.json({
-                status: 200,
+                status: 404,
                 data: {
                     mess: "Can't proccess... Please login again"
                 }
@@ -104,6 +104,17 @@ const Admin_login_Model = async (req, res) => {
                 })
             }
         } else {
+            const haveAdmin = ((await db.collection("adminAccount").count().get()).data().count()) === 0 ? false : true
+
+            if (haveAdmin) {
+                return res.json({
+                    status: 404,
+                    data: {
+                        mess: "Deny access"
+                    }
+                })
+            }
+
             // Add admin
             const adminID = v4()
 

@@ -6,6 +6,7 @@ const admin_login_Router = require("./adminRoute/admin.login.route")
 const admin_uploadImage_Router = require("./adminRoute/admin.upload.route")
 const admin_removeStaff_Router = require("./adminRoute/admin.removeStaff")
 const admin_taskAssingment_Router = require("./adminRoute/admin.taskAssignment.route")
+const admin_contact_Router = require("./adminRoute/admin.contact.route")
 
 
 // Import staff routes
@@ -47,6 +48,9 @@ function routes(app) {
 
     // Route: admin-assign-task
     app.use("/admin-assign-task", admin_taskAssingment_Router)
+
+    // Route: admin-contact
+    app.use("/admin-contact", admin_contact_Router)
 
 
     // STAFF ---------------------------------------------------------------------------------
