@@ -1,5 +1,5 @@
-# API
-**ADMIN - QUẢN TRỊ VIÊN**
+# APIs
+**ADMIN**
 
     // Route: admin-login
     app.use("/admin-login", admin_login_Router)
@@ -17,7 +17,7 @@
     app.use("/admin-contact", admin_contact_Router)
 
 
-**STAFF - NHÂN VIÊN KHẮC PHỤC SỰ CỐ** 
+**STAFF** 
 
     // Route: staff-task-response
     app.use("/staff-task-response", staff_taskResponse_Router)
@@ -26,7 +26,7 @@
     app.use("/staff-task-response-done", staff_responseDone_Router)
 
 
-**USER - NGƯỜI BÁO CÁO SỰ CỐ**
+**USER**
 
     // Route: create-account
     app.use("/create-account", user_createAccount_Router)
@@ -35,7 +35,7 @@
     app.use("/send-report", user_uploadImage_Router)
 
 
-**Shared - API CHUNG** 
+**Shared APIs** 
 
     // Route: login-account
     app.use("/login-account", loginAccount_Router) // For Staff and User
